@@ -40,12 +40,12 @@ namespace BiliBili_UWP.Components.Controls
                         .Throttle(TimeSpan.FromSeconds(0.4));
 
             var notUserInput = input
-                               .ObserveOnDispatcher()
+                               .ObserveOnDispatcher(Windows.UI.Core.CoreDispatcherPriority.Normal)
                                .Where(temp => temp.EventArgs.Reason != AutoSuggestionBoxTextChangeReason.UserInput)
                                .Select(temp => Task.FromResult<List<SearchSuggestion>>(null));
 
             var userInput = input
-                            .ObserveOnDispatcher()
+                            .ObserveOnDispatcher(Windows.UI.Core.CoreDispatcherPriority.Normal)
                             .Where(temp => temp.EventArgs.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
                             .Where(temp => !string.IsNullOrEmpty(temp.Sender.Text))
                             .Select((temp) => {
@@ -53,7 +53,7 @@ namespace BiliBili_UWP.Components.Controls
                                 return App.BiliViewModel._client.GetSearchSuggestionAsync(temp.Sender.Text);
                             });
             var merge = Observable.Merge(notUserInput, userInput).Switch();
-            merge.ObserveOnDispatcher().Subscribe(suggestions =>
+            merge.ObserveOnDispatcher(Windows.UI.Core.CoreDispatcherPriority.Normal).Subscribe(suggestions =>
             {
                 if (suggestions != null)
                 {
